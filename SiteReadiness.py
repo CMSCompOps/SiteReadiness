@@ -26,6 +26,8 @@ parser.add_option("-u", "--url",     metavar="URL",     default="cern.ch",      
 parser.add_option("-x", "--xml",     metavar="BOOLEAN", default="true",                                  help="Sets whether to (re)download the XML files from SSB")
 parser.add_option("-o", "--oneSite", metavar="SITE",    default="",                                      help="Ignore all sites except SITE")
 parser.add_option("--t2weekends",    metavar="T2WKNDS", default=False,     action='store_true',          help="Count weekends for T2 sites?")
+parser.add_option("-i", "--input",   metavar="PATH",    default="input/", help="input file path")
+parser.add_option("-c", "--css",     metavar="PATH",    default="css/",   help="css file path")
 (options, args) = parser.parse_args()
 if options.xml != 'true' and options.xml != 'false': # I don't know why this isn't a bolean, but I'm leaving for backwards compatibility
     print 'ERROR: bad xml option'
@@ -33,7 +35,7 @@ if options.xml != 'true' and options.xml != 'false': # I don't know why this isn
 
 #----------------------------------------------------------------------------------------
 # run the readiness calculation
-cinfo = ColumnInfo() # read config file
+cinfo = ColumnInfo(options) # read input files
 tinfo = TimeInfo()   # set timestamp information
 readimaker = ReadinessMaker(options, cinfo, tinfo)
 readimaker.MakeReadiness()
