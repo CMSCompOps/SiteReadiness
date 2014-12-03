@@ -11,7 +11,7 @@ usage = "usage: (example) %prog -p ~/www/SR2 -u http://cms-site-readiness.web.ce
 parser = OptionParser(usage=usage, version="%prog 1.0")
 parser.add_option("-p", "--path_out", dest="path_out", help="Sets the PATH to store the produced data", metavar="PATH")
 parser.add_option("-u", "--url", dest="url", help="Sets the base URL where produced data is accessible", metavar="URL")
-parser.add_option("-c", "--css",     metavar="PATH",    default="./",   help="css file path")
+parser.add_option("-c", "--css",     metavar="PATH",    default=".",   help="css file path")
 (options, args) = parser.parse_args()
 
 if len(sys.argv) != 5:
