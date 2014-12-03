@@ -4,21 +4,26 @@
 # 38 0,6,12,18 * * * lxplus /afs/cern.ch/user/j/jartieda/SiteSupportFiles/SiteReadiness/run_local.sh &> /dev/null
 # 43 * * * * lxplus ssh vocms202 cp -a $HOME/www/SR2/. /afs/cern.ch/cms/LCG/www/sreadiness/SiteReadiness/ &> /dev/null
 # 43 * * * * lxplus ssh vocms202 cp -a $HOME/www/SR2/. /afs/cern.ch/cms/LCG/www/sreadiness/CommLinksReports/ &> /dev/null
-location=$HOME/SiteSupportFiles/SiteReadiness
+location=$HOME/SiteReadiness
 webdir=$HOME/www/SR2
 webofficial=/afs/cern.ch/cms/LCG/www/sreadiness/SiteReadiness
 webofficial2=/afs/cern.ch/cms/LCG/www/sreadiness/CommLinksReports
 link=http://cms-site-readiness.web.cern.ch/cms-site-readiness
+css=css/
 
 # Running all necessary scripts
 cd $location
+
+# copy css files
+cp -r $css $webdir/HTML
+
 # Active links
 echo "*** EnabledLinksFromPhEDExDataSrv.py ***"
-python EnabledLinksFromPhEDExDataSrv.py -p $webdir -u $link
+python EnabledLinksFromPhEDExDataSrv.py -p $webdir -u $link -c $css
 
 # Site Readiness python
 echo "*** SiteReadiness.py ***"
-./SiteReadiness.py -p $webdir -u $link
+./SiteReadiness.py -p $webdir -u $link -c $css
 # $webdir: output location
 # $link: address to use inside files for output links
 
