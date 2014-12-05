@@ -100,7 +100,7 @@ class OutputWriter:
         filehtml = self.htmlOutDir + '/SiteReadinessReport_' + self.tinfo.timestamphtml +'.html'
         fileHandle = open ( filehtml , 'w' )    
     
-        fileHandle.write("<html><head><title>CMS Site Readiness</title><link type=\"text/css\" rel=\"stylesheet\" href=\"./style-css-reports.css\"/></head>\n")
+        fileHandle.write("<html><head><title>CMS Site Readiness</title><link type=\"text/css\" rel=\"stylesheet\" href=\""+self.options.css+"/style-css-reports.css\"/></head>\n")
         fileHandle.write("<body><center>\n")
     
         sitesit = self.matrices.readiValues.keys()
