@@ -1,9 +1,10 @@
 import string
 
 class ColumnInfo:
-    def __init__(self):
+    def __init__(self, options):
         webserver="http://dashb-ssb.cern.ch" #"http://dashb-ssb-dev.cern.ch"
-        
+
+        self.options = options
         self.urls = {}  # SSB URLs Matrix
         self.criteria = {'T0':[],'T1':[],'T2':[],'T3':[]} # which columns to use for which tiers
         self.colorCodes = {}        # color codes
@@ -17,7 +18,7 @@ class ColumnInfo:
         self.printCol = {}          # metric print permission
         
         metricCount = 1
-        tmpf = open("data/readiness.conf")
+        tmpf = open(self.options.input + "/readiness.input")
         for line in tmpf:
             if line[0] == '#':
                 continue
@@ -28,12 +29,12 @@ class ColumnInfo:
                 elif words[0] == 'daysSC':     self.daysSC     = int(words[1])
                 elif words[0] == 'daysToShow': self.daysToShow = int(words[1])
                 else:
-                    print '\nERROR bad config file\n'
+                    print '\nERROR bad input file\n'
                     sys.exit()
                 continue
             colName = words[0]
             if self.days == 0 or self.daysSC == 0 or self.daysToShow == 0:
-                print 'ERROR need to set self.days in config'
+                print 'ERROR need to set self.days in input'
                 sys.exit()
             url = webserver + '/dashboard/request.py/getplotdata?columnid=' + words[1] + '&batch=1&time=' + str(self.days*24)
             self.urls[colName] = url
@@ -63,19 +64,19 @@ class ColumnInfo:
             self.printCol[colName] = pCol
         tmpf.close()
         
-        tmpf = open("data/colors.conf")
+        tmpf = open(self.options.input + "/colors.input")
         for line in tmpf:
             if line[0] == '#':
                 continue
             words = line.split()
             label = words[0]
-            if label == '_': # convention: underscore in config means a space
+            if label == '_': # convention: underscore in input means a space
                 label = ' '
             self.colors[label] = words[1]
         
         tmpf.close()
 
-        tmpf = open("data/credit-transfers.conf")
+        tmpf = open(self.options.input + "/credit-transfers.input")
         for line in tmpf:
             if line[0] == '#':
                 continue

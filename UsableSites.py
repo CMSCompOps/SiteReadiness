@@ -5,7 +5,9 @@
 import sys, xml.dom.minidom, os, datetime, time, pprint
 from xml import xpath
 from datetime import date
-import simplejson as json
+
+try: import simplejson as json
+except ImportError: import json
 
 # OptParse
 from optparse import OptionParser
