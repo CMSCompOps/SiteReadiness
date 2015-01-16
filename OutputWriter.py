@@ -44,7 +44,7 @@ class OutputWriter:
             data = data.split('\n')
             for i in data:
                 # add the item if it is not blank and not a comment line
-                if i and i[0] != '#': self.ExcludedSites.append(i)
+                if i and i[0] != '#': self.ExcludedSites.append(i.strip())
         print "sites to be excluded", self.ExcludedSites
  
     #----------------------------------------------------------------------------------------
