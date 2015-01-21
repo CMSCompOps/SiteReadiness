@@ -29,7 +29,24 @@ class OutputWriter:
         if not os.path.exists(self.htmlOutDir):  os.makedirs(self.htmlOutDir)
         if not os.path.exists(self.plotOutDir):  os.makedirs(self.plotOutDir)
         if not os.path.exists(self.asciiOutDir): os.makedirs(self.asciiOutDir)
-            
+
+        # load and parse site list to exclude them
+        # site list to exclude
+        self.ExcludedSites = []
+        # check if the file exists
+        if os.path.exists(options.input) and os.path.isfile(options.input + '/excluded-sites.input'):
+            # open the file
+            fileHandle = open(options.input + '/excluded-sites.input')
+            # load the file content
+            data       = fileHandle.read()
+            # close the file
+            fileHandle.close()
+            data = data.split('\n')
+            for i in data:
+                # add the item if it is not blank and not a comment line
+                if i and i[0] != '#': self.ExcludedSites.append(i.strip())
+        print "sites to be excluded", self.ExcludedSites
+ 
     #----------------------------------------------------------------------------------------
     # don't write any output for this site?
     def SkipSiteOutput(self, sitename):
@@ -38,6 +55,7 @@ class OutputWriter:
         if sitename.find("_Buffer") >= 0 : return 1
         if sitename.find("_Disk") >= 0 : return 1
         if sitename.find("T3_") == 0 : return 1
+        if sitename in self.ExcludedSites: return 1
     
         # don't write info for sites that are 'n/a' for the entire time period
         dayVals = self.matrices.readiValues[sitename].keys()
