@@ -45,6 +45,16 @@ class OutputWriter:
             for i in data:
                 # add the item if it is not blank and not a comment line
                 if i and i[0] != '#': self.ExcludedSites.append(i.strip())
+        # load the instructions for T1 and T2 tables
+        self.t1Inst = ''
+        self.t2Inst = ''
+        if os.path.exists(options.input) and os.path.isfile(options.input + '/t1Inst.html') and os.path.isfile(options.input + '/t2Inst.html'):
+           fileHandle = open(options.input + '/t1Inst.html')
+           self.t1Inst = fileHandle.read()
+           fileHandle.close()
+           fileHandle = open(options.input + '/t2Inst.html')
+           self.t2Inst = fileHandle.read()
+           fileHandle.close()
         print "sites to be excluded", self.ExcludedSites
  
     #----------------------------------------------------------------------------------------
@@ -120,6 +130,7 @@ class OutputWriter:
     
         fileHandle.write("<html><head><title>CMS Site Readiness</title><link type=\"text/css\" rel=\"stylesheet\" href=\""+self.options.css+"/style-css-reports.css\"/></head>\n")
         fileHandle.write("<body><center>\n")
+        fileHandle.write('<h1 style="line-height:200%">Site Readiness Report</h1>')
     
         sitesit = self.matrices.readiValues.keys()
         sitesit.sort()
@@ -299,192 +310,12 @@ class OutputWriter:
                 fileHandle.write("<div id=\"leg1\">" + self.reptime + "</div>\n")
                 fileHandle.write("</div>\n")
     
-                #legends
+                # print instructions
+                if sitename.find('T1_') == 0:
+                    fileHandle.write(self.t1Inst)
+                elif sitename.find('T2_') == 0:
+                    fileHandle.write(self.t2Inst)
     
-                lw1="15"
-                lw2="425"
-    
-                fileHandle.write("<br>\n")
-                fileHandle.write("<table border=\"0\" cellspacing=\"0\" class=leg>\n")
-                
-                fileHandle.write("<tr height=15>\n") 
-                fileHandle.write("<td width=" + lw1 + " bgcolor=white><div id=legflag>*</div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Due to operational errors, the metric has been corrected manually (!=SSB).</div></td>\n")
-                fileHandle.write("</tr>\n")
-                fileHandle.write("<tr height=10>\n") 
-                fileHandle.write("</tr>\n")
-    
-                if sitename.find('T2_') == 0:
-                    fileHandle.write("<tr height=15>\n") 
-                    fileHandle.write("<td width=" + lw1 + " bgcolor=grey><div id=legflag>--</div></td>\n")
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Errors on weekends are ignored on Site Readiness computation for T2s [<a href=\"https://twiki.cern.ch/twiki/bin/viewauth/CMSPublic/SiteCommRules\">+info</a>]</div></td>\n")
-                    fileHandle.write("</tr>\n")
-                    fileHandle.write("<tr height=10>\n") 
-                    fileHandle.write("</tr>\n")
-    
-                fileHandle.write("<tr height=15>\n") 
-                mes="\"Site Readiness Status\" as defined in <a href=\"https://twiki.cern.ch/twiki/bin/viewauth/CMSPublic/SiteCommRules\">Site Commissioning Twiki</a>:" 
-                fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">" + mes + "</div></td>\n")
-                mes="\"Daily Metric\" as boolean AND of all invidual metrics:" 
-                fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">" + mes + "</div></td>\n")
-                fileHandle.write("</tr>\n")
-                fileHandle.write("<tr height=15>\n") 
-                fileHandle.write("<td width=" + lw1 + " bgcolor=green><div id=legflag>R</div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = READY </div></td>\n")
-                fileHandle.write("<td width=" + lw1 + " bgcolor=green><div id=legflag>O</div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = OK (All individual metrics above Site Commissioning Thresholds; \"n/a\" ignored)</div></td>\n")
-                fileHandle.write("</tr>\n")
-                fileHandle.write("<tr height=15>\n") 
-                fileHandle.write("<td width=" + lw1 + " bgcolor=yellow><div id=legflag>W</div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = WARNING </div></td>\n")
-                fileHandle.write("<td width=" + lw1 + " bgcolor=red><div id=legflag>E</div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = ERROR (Some individual metrics below Site Commissioning Thresholds)</div></td>\n")
-                fileHandle.write("</tr>\n")
-                fileHandle.write("<tr height=15>\n") 
-                fileHandle.write("<td width=" + lw1 + " bgcolor=red><div id=legflag>NR</div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = NOT-READY </div></td>\n")
-                fileHandle.write("<td width=" + lw1 + " bgcolor=brown><div id=legflag>SD</div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = SCHEDULED-DOWNTIME</div></td>\n")
-                fileHandle.write("</tr>\n")
-                fileHandle.write("<tr height=15>\n") 
-                fileHandle.write("<td width=" + lw1 + " bgcolor=brown><div id=legflag>SD</div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = SCHEDULED-DOWNTIME</div></td>\n")
-                fileHandle.write("</tr>\n")
-                
-                fileHandle.write("<tr height=10>\n") 
-                fileHandle.write("</tr>\n")
-                
-                fileHandle.write("<tr height=15>\n") 
-                
-                mes="- INDIVIDUAL METRICS -"
-            
-                fileHandle.write("<td width=" + lw2 + " colspan=6><div id=\"legendexp2\">" + mes + "</div></td>\n")
-                fileHandle.write("</tr>\n")
-                
-                fileHandle.write("<tr height=10>\n") 
-                fileHandle.write("</tr>\n")
-                
-                fileHandle.write("<tr height=15>\n") 
-                mes="\"Maintenance\": Sites scheduled downtimes"
-                fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">" + mes + "</div></td>\n")
-                mes="\"HammerCloud\":"
-                fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">" + mes + "</div></td>\n")
-                mes="\"Good Links\":" 
-                fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">" + mes + "</div></td>\n")
-                fileHandle.write("</tr>\n")
-                fileHandle.write("<tr height=15>\n") 
-                fileHandle.write("<td width=" + lw1 + " bgcolor=green><div id=legflag>Up</div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Site is not declaring Scheduled-downtime </div></td>\n")
-                fileHandle.write("<td width=" + lw1 + " bgcolor=green><div id=legflag></div></td>\n")
-                if sitename.find('T1_') == 0:
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = HC success rate is &ge; 90%</div></td>\n")
-                else:
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = HC success rate is &ge; 80%</div></td>\n")
-                fileHandle.write("<td width=" + lw1 + " bgcolor=green><div id=legflag></div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = at least half of links have 'good' transfers (i.e. with transfer quality > 50%)</div></td>\n")
-                fileHandle.write("</tr>\n")
-                fileHandle.write("<tr height=15>\n") 
-                fileHandle.write("<td width=" + lw1 + " bgcolor=brown><div id=legflag>SD</div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = full-site in SD OR all CMS SE(s) in SD OR all CMS CE(s) in SD</div></td>\n")
-                fileHandle.write("<td width=" + lw1 + " bgcolor=red><div id=legflag></div></td>\n")
-                if sitename.find('T1_') == 0:
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = HC success rate is < 90%</div></td>\n")
-                else:
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = HC success rate is < 80%</div></td>\n")
-                fileHandle.write("<td width=" + lw1 + " bgcolor=red><div id=legflag></div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Otherwise</div></td>\n")
-                fileHandle.write("</tr>\n")
-                fileHandle.write("<tr height=15>\n") 
-                fileHandle.write("<td width=" + lw1 + " bgcolor=yellow><div id=legflag>~</div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Some SE or CE services (not all) Downtime</div></td>\n")
-                fileHandle.write("<td width=" + lw1 + " bgcolor=orange><div id=legflag>-</div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Jobs submitted but not finished</div></td>\n")
-                fileHandle.write("</tr>\n")
-                fileHandle.write("<tr height=15>\n") 
-                fileHandle.write("<td width=" + lw1 + " bgcolor=silver><div id=legflag>UD</div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = full-site in UD OR all CMS SE(s) in UD OR all CMS CE(s) in UD</div></td>\n")
-    
-                fileHandle.write("<td width=" + lw1 + " bgcolor=white><div id=legflag>n/a</div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = HC success rate is n/a</div></td>\n")
-                fileHandle.write("</tr>\n")
-    
-                fileHandle.write("<tr height=10>\n") 
-                fileHandle.write("</tr>\n")
-    
-                fileHandle.write("<tr height=15>\n") 
-                mes="\"SAM Availability\":" 
-                fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">" + mes + "</div></td>\n")
-                if sitename.find('T1_') == 0:
-                    mes="\"Active T1 links from T0\":" 
-                else:
-                    mes="\"Active T2 links to T1s\":"
-                fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">" + mes + "</div></td>\n")
-                fileHandle.write("</tr>\n")
-                fileHandle.write("<tr height=15>\n") 
-                fileHandle.write("<td width=" + lw1 + " bgcolor=green><div id=legflag></div></td>\n")
-                if sitename.find('T1_') == 0:
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = SAM availability is &ge; 90% </div></td>\n")
-                else:   
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = SAM availability is &ge; 80% </div></td>\n")
-                fileHandle.write("<td width=" + lw1 + " bgcolor=green><div id=legflag></div></td>\n")
-                if sitename.find('T1_') == 0:
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Link from T0_CH_CERN is DDT-commissioned </div></td>\n")
-                else:
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Site has &ge; 2 DDT-commissioned links to T1 sites </div></td>\n")            
-                fileHandle.write("</tr>\n")
-                fileHandle.write("<tr height=15>\n") 
-                fileHandle.write("<td width=" + lw1 + " bgcolor=red><div id=legflag></div></td>\n")
-                if sitename.find('T1_') == 0:
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = SAM availability is < 90%  <div></td>\n")
-                else:
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = SAM availability is < 80%  <div></td>\n") 
-                fileHandle.write("<td width=" + lw1 + " bgcolor=red><div id=legflag></div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Otherwise</div></td>\n")
-                fileHandle.write("</tr>\n")
-                
-                fileHandle.write("<tr height=10>\n") 
-                fileHandle.write("</tr>\n")
-    
-                fileHandle.write("<tr height=15>\n") 
-                if sitename.find('T1_') == 0:
-                    mes="\"Active T1 links from/to T1s\":" 
-                else:
-                    mes="\"Active T2 links from T1s\":"
-                fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">" + mes + "</div></td>\n")
-    
-                if sitename.find('T1_') == 0:
-                    mes="\"Active T1 links to T2s\":" 
-                else:
-                    mes=""
-                fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">" + mes + "</div></td>\n")
-                fileHandle.write("</tr>\n")
-                fileHandle.write("<tr height=15>\n") 
-                fileHandle.write("<td width=" + lw1 + " bgcolor=green><div id=legflag></div></td>\n")
-                if sitename.find('T1_') == 0:
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Site has &ge; 4 DDT-commissioned links from and to, respectively, other T1 sites </div></td>\n")
-                else:
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Site has &ge; 4 DDT-commissioned links from T1 sites </div></td>\n")  
-        
-                if sitename.find('T1_') == 0:
-                    fileHandle.write("<td width=" + lw1 + " bgcolor=green><div id=legflag></div></td>\n")
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Site has &ge; 20 DDT-commissioned links to T2 sites </div></td>\n")
-                else:
-                    fileHandle.write("<td width=" + lw1 + " bgcolor=white><div id=legflag></div></td>\n")
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"></div></td>\n")
-                fileHandle.write("</tr>\n")
-                fileHandle.write("<tr height=15>\n") 
-                fileHandle.write("<td width=" + lw1 + " bgcolor=red><div id=legflag></div></td>\n")
-                fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Otherwise <div></td>\n")
-                if sitename.find('T1_') == 0:
-                    fileHandle.write("<td width=" + lw1 + " bgcolor=red><div id=legflag></div></td>\n")
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Otherwise </div></td>\n")
-                else:
-                    fileHandle.write("<td width=" + lw1 + " bgcolor=white><div id=legflag></div></td>\n")
-                    fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"></div></td>\n")
-    
-                fileHandle.write("</tr>\n")
-                
-                fileHandle.write("</table>\n")
                 fileHandle.write("<p>\n")
     
                 fileHandle.write("<p><br>\n")
