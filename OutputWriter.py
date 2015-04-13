@@ -56,6 +56,16 @@ class OutputWriter:
            self.t2Inst = fileHandle.read()
            fileHandle.close()
         print "sites to be excluded", self.ExcludedSites
+
+        self.weekendSites = []
+        if os.path.exists(options.input) and os.path.isfile(options.input + '/weekend-sites.input'):
+           fileHandle = open(options.input + '/weekend-sites.input')
+           data = fileHandle.read()
+           fileHandle.close()
+           for line in data.split('\n'):
+               line = line.strip()
+               if len(line) > 0 and line[0] != '#': self.weekendSites.append(line)
+        print "weekend sites", self.weekendSites
  
     #----------------------------------------------------------------------------------------
     # don't write any output for this site?
@@ -200,7 +210,7 @@ class OutputWriter:
     
                     datesgm1 = datesgm[8:10]
                     c = datetime.datetime(*time.strptime(datesgm,"%Y-%m-%d")[0:5])
-                    if (c.weekday() == 5 or c.weekday() == 6) and sitename.find('T2_') == 0: # id. weekends
+                    if not sitename in self.weekendSites and (c.weekday() == 5 or c.weekday() == 6) and sitename.find('T2_') == 0: # id. weekends
                         if state!=" ":
                             fileHandle.write("<td width=\"" + dayw + "\" bgcolor=grey><div id=\"daily-metric\">" + state + "</div></td>\n")
                         else:
@@ -246,7 +256,7 @@ class OutputWriter:
                         datesgm1 = datesgm[8:10]
                         c = datetime.datetime(*time.strptime(datesgm,"%Y-%m-%d")[0:5])
                         
-                        if (c.weekday() == 5 or c.weekday() == 6) and sitename.find('T2_') == 0: # id. weekends
+                        if not sitename in self.weekendSites and (c.weekday() == 5 or c.weekday() == 6) and sitename.find('T2_') == 0: # id. weekends
                             if state != " " :
                                 if self.matrices.columnValues[sitename][datesgm][met].has_key('URL') and self.matrices.columnValues[sitename][datesgm][met]['URL'] != ' ' :
                                     stateurl=self.matrices.columnValues[sitename][datesgm][met]['URL']

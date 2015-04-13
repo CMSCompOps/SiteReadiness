@@ -1,0 +1,4 @@
+# if you put a site name in this file, the site readiness script will generate
+# tables which are not contain 'grey columns'. The tables for sites stated in
+# this file will be like tales for T1 sites.
+T2_CH_CERN
