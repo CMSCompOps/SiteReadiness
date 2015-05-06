@@ -277,10 +277,10 @@ for i in range(0,len(keys)):
         try:
 	    status=siteStatus1[site]
         except KeyError:
-            sys.stderr.write("No panic. I just couldn't find the site: %s.\n" % site)
-            sys.stderr.write("I will delete it from the site pool and continue.\n")
-            sys.stderr.write("--Please try to find the reason. (Is this site new?\n")
-            sys.stderr.write("If so, ask transfer team whether they are currently working on this site or not.)\n")
+            print "No panic. I just couldn't find the site: %s." % site
+            print "I will delete it from the site pool and continue."
+            print "--Please try to find the reason. (Is this site new?"
+            print "If so, ask transfer team whether they are currently working on this site or not.)"
             siteList2Delete.append(i)
             continue
 	if status=="n/a": continue
