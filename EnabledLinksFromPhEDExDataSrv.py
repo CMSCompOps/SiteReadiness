@@ -270,15 +270,27 @@ f.write(mes)
 f.write('#\n')
 f.write(reptime)
 f.write('#\n')
+
+siteList2Delete = []
 for i in range(0,len(keys)):
 	site=keys[i]
-	status=siteStatus1[site]
+        try:
+	    status=siteStatus1[site]
+        except KeyError:
+            sys.stderr.write("No panic. I just couldn't find the site: %s.\n" % site)
+            sys.stderr.write("I will delete it from the site pool and continue.\n")
+            sys.stderr.write("--Please try to find the reason. (Is this site new?\n")
+            sys.stderr.write("If so, ask transfer team whether they are currently working on this site or not.)\n")
+            siteList2Delete.append(i)
+            continue
 	if status=="n/a": continue
 	color=siteColor1[site]
 	link = linkmetrics + "#" + mesT1_1_2
 	f.write('%s\t%s\t%s\t%s\t%s\n' % (todaystampfileSSB, site, status, color, link))
-
 f.close()
+
+for i in siteList2Delete:
+    del keys[i]
 
 f=file(metricPage2,'w')
 f.write('# Site Status derived from DDT Commissioned Links\n')
