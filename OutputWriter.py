@@ -175,57 +175,7 @@ class OutputWriter:
                 fileHandle.write("<td width=" + daysw + " colspan=" + colspans1 + " bgcolor=black></td></tr>\n")
             
                 fileHandle.write("<tr><td width=" + metricw + "></td>\n")
-                fileHandle.write("<td width=" + scdaysw1 + " colspan=" + colspans3 + "><div id=\"daily-metric-header\">Site Readiness Status: </div></td>\n")
-            
                 igdays=0
-                for datesgm in dates: # write out 'Site Readiness Status' line
-                    igdays+=1
-                    if (self.cinfo.days - igdays)>(self.cinfo.daysToShow - self.cinfo.daysSC): continue
-    
-                    if not self.matrices.readiValues[sitename].has_key(datesgm):
-                        continue
-                    state=self.matrices.readiValues[sitename][datesgm]
-                    datesgm1 = datesgm[8:10]
-                    c = datetime.datetime(*time.strptime(datesgm,"%Y-%m-%d")[0:5])
-                    fileHandle.write("<td width=\"" + dayw + "\" bgcolor=" + self.cinfo.colors[state] + "><div id=\"daily-metric\">" + state + "</div></td>\n")
-    
-                fileHandle.write("</tr><tr height=4><td width=" + metricw + "></td>\n")
-                fileHandle.write("<td width=" + daysw + " colspan=" + colspans1 + " bgcolor=black></td></tr>\n")
-                
-                fileHandle.write("<tr height=7><td width=" + metricw + "></td>\n")
-                fileHandle.write("<td width=" + daysw + " colspan=" + colspans1 + "></td></tr>\n")
-                
-                fileHandle.write("<tr height=4><td width=" + tablew + " colspan=" + colspans2 + " bgcolor=black></td></tr>\n")
-    
-                fileHandle.write("<td width=\"" + metricw + "\"><div id=\"daily-metric-header\">Daily Metric: </div></td>\n")
-    
-                igdays=0
-    
-                for datesgm in dates: # write out 'Daily Metric' line
-    
-                    igdays+=1
-                    if (self.cinfo.days - igdays)>self.cinfo.daysToShow-1: continue
-    
-                    state = self.matrices.dailyMetrics[sitename][datesgm]
-    
-                    datesgm1 = datesgm[8:10]
-                    c = datetime.datetime(*time.strptime(datesgm,"%Y-%m-%d")[0:5])
-                    if not sitename in self.weekendSites and (c.weekday() == 5 or c.weekday() == 6) and sitename.find('T2_') == 0: # id. weekends
-                        if state!=" ":
-                            fileHandle.write("<td width=\"" + dayw + "\" bgcolor=grey><div id=\"daily-metric\">" + state + "</div></td>\n")
-                        else:
-                            fileHandle.write("<td width=\"" + dayw + "\" bgcolor=white><div id=\"daily-metric\">" + state + "</div></td>\n")
-                    else:
-                        fileHandle.write("<td width=\"" + dayw + "\" bgcolor=" + self.cinfo.colors[state] + "><div id=\"daily-metric\">" + state + "</div></td>\n")
-    
-    
-                fileHandle.write("<tr height=4><td width=" + tablew + " colspan=" + colspans2 + " bgcolor=black></td></tr>\n")
-    
-                fileHandle.write("<tr height=7><td width=" + metricw + "></td>\n")
-                fileHandle.write("<td width=" + daysw + " colspan=" + colspans1 + "></td></tr>\n")
-    
-                fileHandle.write("<tr height=4><td width=" + tablew + " colspan=" + colspans2 + " bgcolor=black></td></tr>\n")
-                
                 indmetrics = self.cinfo.metorder.keys()
                 indmetrics.sort()
     
@@ -235,7 +185,9 @@ class OutputWriter:
                     met1 = self.cinfo.printCol[met] #pCol (print permission)
                     tier = sitename.split("_")[0]   
                     met2 = self.cinfo.criteria[tier]
-                    
+                    dividMetrics = '"metrics2"'
+                    if met == 'LifeStatus' or met == 'SiteReadiness':
+                       dividMetrics = '"daily-metric"' 
                     #if not self.matrices.columnValues[sitename][dates[0]].has_key(met) or met == 'IsSiteInSiteDB': continue # ignore 
                     if not self.matrices.columnValues[sitename][dates[0]].has_key(met) or met1 == '0' : continue # ignore
                     if met1 == 't' and not met in met2 : continue # ignore    
@@ -243,6 +195,8 @@ class OutputWriter:
     
                     if met == 'SAMAvailability':
                         fileHandle.write("<tr><td width=\"" + metricw + "\"><div id=\"metrics-header\"><font color=\"orange\">" + self.cinfo.metlegends[met] + ": </font></div></td>\n")
+                    elif met == 'LifeStatus':
+                         fileHandle.write("<tr><td width=\"" + metricw + "\"><div id=\"metrics-header\">" + self.cinfo.metlegends[met] + ": </div></td><td     width=\"" + dayw + "\" bgcolor=white>"+"</td>\n")
                     else:
                         fileHandle.write("<tr><td width=\"" + metricw + "\"><div id=\"metrics-header\">" + self.cinfo.metlegends[met] + ": </div></td>\n")
                         
@@ -256,22 +210,25 @@ class OutputWriter:
                         datesgm1 = datesgm[8:10]
                         c = datetime.datetime(*time.strptime(datesgm,"%Y-%m-%d")[0:5])
                         
-                        if not sitename in self.weekendSites and (c.weekday() == 5 or c.weekday() == 6) and sitename.find('T2_') == 0: # id. weekends
+                        if not sitename in self.weekendSites and (c.weekday() == 5 or c.weekday() == 6) and sitename.find('T2_') == 0 and met != "LifeStatus": # id. weekends
                             if state != " " :
                                 if self.matrices.columnValues[sitename][datesgm][met].has_key('URL') and self.matrices.columnValues[sitename][datesgm][met]['URL'] != ' ' :
                                     stateurl=self.matrices.columnValues[sitename][datesgm][met]['URL']
-                                    fileHandle.write("<td width=\"" + dayw + "\" bgcolor=grey><a href=\""+stateurl+"\">"+"<div id=\"metrics2\">" + state + "</div></a></td>\n")
+                                    fileHandle.write("<td width=\"" + dayw + "\" bgcolor=grey><a href=\""+stateurl+"\">"+"<div id="+dividMetrics+">" + state + "</div></a></td>\n")
                                 else:
-                                    fileHandle.write("<td width=\"" + dayw + "\" bgcolor=grey><div id=\"metrics2\">" + state + "</div></td>\n")
+                                    fileHandle.write("<td width=\"" + dayw + "\" bgcolor=grey><div id="+dividMetrics+">" + state + "</div></td>\n")
                             else:
-                                    fileHandle.write("<td width=\"" + dayw + "\" bgcolor=white><div id=\"metrics2\">" + state + "</div></td>\n")
+                                    fileHandle.write("<td width=\"" + dayw + "\" bgcolor=white><div id="+dividMetrics+">" + state + "</div></td>\n")
                         else:
                             if self.matrices.columnValues[sitename][datesgm][met].has_key('URL') and self.matrices.columnValues[sitename][datesgm][met]['URL'] != ' ' :
                                 stateurl=self.matrices.columnValues[sitename][datesgm][met]['URL']
-                                fileHandle.write("<td width=\"" + dayw + "\" bgcolor=" + colorst + "><a href=\""+stateurl+"\">"+"<div id=\"metrics2\">" + state + "</div></a></td>\n")
+                                fileHandle.write("<td width=\"" + dayw + "\" bgcolor=" + colorst + "><a href=\""+stateurl+"\">"+"<div id="+dividMetrics+">" + state + "</div></a></td>\n")
                             else:
-                                fileHandle.write("<td width=\"" + dayw + "\" bgcolor=" + colorst + "><div id=\"metrics2\">" + state + "</div></td>\n")
+                                fileHandle.write("<td width=\"" + dayw + "\" bgcolor=" + colorst + "><div id="+dividMetrics+">" + state + "</div></td>\n")
                     fileHandle.write("</tr>\n")
+                    if met == 'SiteReadiness':
+                        fileHandle.write("<tr height=4><td width=" + tablew + " colspan=" + colspans22 + " bgcolor=black></td></tr>\n") 
+                        fileHandle.write("<tr height=2><td width=" + tablew + " colspan=" + colspans22 + " bgcolor=white></td></tr>\n") 
                     
                 fileHandle.write("<tr height=4><td width=" + tablew + " colspan=" + colspans22 + " bgcolor=black></td></tr>\n")
                 fileHandle.write("<tr height=4><td width=" + metricw + "></td>\n")
@@ -661,7 +618,7 @@ class OutputWriter:
         self.ProduceSiteReadinessStatistics()
         self.ProduceSiteReadinessSSBFiles()
         self.ProduceSiteReadinessRankingPlots()
-        self.PrintDailyMetricsStats()
-        self.PrintSiteReadinessMetricsStats()
+        #self.PrintDailyMetricsStats()
+        #self.PrintSiteReadinessMetricsStats()
         self.CreateSimbLinks()
         self.DumpPickleFiles()

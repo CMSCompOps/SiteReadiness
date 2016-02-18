@@ -62,8 +62,9 @@ class ReadinessMaker:
             f = file(xmlFile,'r') # read xml file that was either just written, or was written in the previous run
             t = xml.dom.minidom.parse(f)
             f.close()
-    
+            #print t.toprettyxml() 
             for subUrl in xpath.Evaluate("/getplotdata/csvdata/item", t):
+                #print subUrl.toprettyxml()
                 info = {} # basic info about the site for this column
                 for option in ('Status', "COLOR", 'Time', 'EndTime','VOName','URL'):
                     for target in xpath.Evaluate(option, subUrl):
@@ -104,6 +105,10 @@ class ReadinessMaker:
             delta = datetime.timedelta(1)
             yesterday = datestamp - delta
             return yesterday.strftime("%Y-%m-%d")
+        #elif col == "LifeStatus" or col=="SiteReadiness": 
+        #    delta = datetime.timedelta(1)
+        #    tomorrow = datestamp + delta
+        #    return tomorrow.strftime("%Y-%m-%d")
         else:
             return datestamp.strftime("%Y-%m-%d")
         
@@ -170,7 +175,7 @@ class ReadinessMaker:
                         if diff1s<0 and diff2s<=0:
                             EndTXML=False
                             continue
-    
+                          
                         if self.cinfo.colorCodes[col][self.matrices.xmlInfo[sitename][col][coldate]['COLOR']] == "green":
                             status=self.matrices.xmlInfo[sitename][col][coldate]['Status']
                             statusu=self.matrices.xmlInfo[sitename][col][coldate]['URL']
@@ -191,9 +196,9 @@ class ReadinessMaker:
                             statusu=' '
                             statusc='white'
                         else:
-                            status='???'
-                            statusu='???'
-                            statusc='white'
+                            status=self.matrices.xmlInfo[sitename][col][coldate]['Status']
+                            statusu=self.matrices.xmlInfo[sitename][col][coldate]['URL']
+                            statusc=self.cinfo.colorCodes[col][self.matrices.xmlInfo[sitename][col][coldate]['COLOR']]
     
                         dayloopstamp3 = self.ShiftDayForMetric(dayloop,col)
                         todayst = date(int(self.tinfo.todaystamp[0:4]),int(self.tinfo.todaystamp[5:7]),int(self.tinfo.todaystamp[8:10]))
@@ -201,7 +206,20 @@ class ReadinessMaker:
     
                         if abs((dayloop3-todayst).days) > self.cinfo.days:
                             continue
-    
+                        if status == "Ready":
+                           status = "R"
+                        elif status == "NotReady":
+                           status = "NR"
+                        elif status == "Downtime":
+                           status = "SD"
+                        elif status == "Waiting_Room":
+                           status = "WR"
+                        elif status == "Morgue":
+                           status = "M" 
+                        elif status == "OK" or status == "Ok":
+                           status = "O"
+                        elif status == "Error":
+                           status = "E"
                         # set the actual values in self.matrices.columnValues
                         infocol = {}
                         infocol['Status'] = status
@@ -231,19 +249,25 @@ class ReadinessMaker:
         # Leer Downtimes Topology (por ahora uso Time y EndTime para decidir cuanto duran los Downtimes)
         # por defecto todos los dias son Ok, y uso Time y EndTime para asignar los Downtimes.
         prog = ProgressBar(0, 100, 77)
+        downtimedays = self.cinfo.days
+        #downtimedays = 120
         for sitename in self.matrices.xmlInfo:
             prog.increment(100./len(self.matrices.xmlInfo))
             if not self.matrices.columnValues.has_key(sitename): # add dict for site
+                print "not self.matrices.columnValues.has_key " + sitename
                 self.matrices.columnValues[sitename]={}
             for col in self.cinfo.urls: # loop over columns
                 if col != "Downtimes_top":
                     continue
                 infocol = {}
+                #if sitename == "T2_US_UCSD": 
+                #  print self.matrices.xmlInfo['T2_US_UCSD'][col]
                 if not self.matrices.xmlInfo[sitename].has_key(col):
+                    #print "self.matrices.xmlInfo[sitename].has_key(col) " + sitename + ":" + col  
                     self.matrices.xmlInfo[sitename][col] = {}
                 # set downtime metric to green by default
-                for i in range(0,self.cinfo.days+1):
-                    delta = datetime.timedelta(self.cinfo.days-i);
+                for i in range(0,downtimedays+1):
+                    delta = datetime.timedelta(downtimedays-i);
                     dayloop = self.tinfo.today - delta
                     dayloopstamp = dayloop.strftime("%Y-%m-%d")
 
@@ -264,8 +288,8 @@ class ReadinessMaker:
                     enddate = self.matrices.xmlInfo[sitename][col][stdate]['EndTime'][0:self.matrices.xmlInfo[sitename][col][stdate]['EndTime'].find(" ")]
                     cl = self.matrices.xmlInfo[sitename][col][stdate]['COLOR']
     
-                    for i in range(0,self.cinfo.days+1):
-                        delta = datetime.timedelta(self.cinfo.days-i);
+                    for i in range(0,downtimedays+1):
+                        delta = datetime.timedelta(downtimedays-i);
                         dayloop = self.tinfo.today - delta
                         dayloopstamp = dayloop.strftime("%Y-%m-%d")
                         kk=0
@@ -306,9 +330,7 @@ class ReadinessMaker:
                                     values['URL'] = self.matrices.xmlInfo[sitename][col][stdate]['URL']
                                 
                                 if dayloop > self.tinfo.today: break # ignore future downtimes
-    
                                 self.matrices.columnValues[sitename][dayloopstamp][col] = values
-    
                                 kk+=1
     
                                 if (dayloopstamp == enddate): wloop=False

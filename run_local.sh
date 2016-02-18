@@ -1,38 +1,31 @@
 #!/bin/sh
-# Script to run a secondary version of the SR script when the main script fails:
-# acronjob in acrontab jartieda
-# 38 0,6,12,18 * * * lxplus /afs/cern.ch/user/j/jartieda/SiteSupportFiles/SiteReadiness/run_local.sh &> /dev/null
-# 43 * * * * lxplus ssh vocms202 cp -a $HOME/www/SR2/. /afs/cern.ch/cms/LCG/www/sreadiness/SiteReadiness/ &> /dev/null
-# 43 * * * * lxplus ssh vocms202 cp -a $HOME/www/SR2/. /afs/cern.ch/cms/LCG/www/sreadiness/CommLinksReports/ &> /dev/null
-webdir=$HOME/www/readiness
-webofficial=/afs/cern.ch/cms/LCG/www/sreadiness/SiteReadiness
-webofficial2=/afs/cern.ch/cms/LCG/www/sreadiness/CommLinksReports
-link=http://cms-site-readiness.web.cern.ch/cms-site-readiness
-css=css/
-input=input/
+
+BASE=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
+LOG=$BASE/log/sstInit.log
+WEBDIR=/afs/cern.ch/user/c/cmssst/www/sreadiness/SiteReadiness/
+LINK=http://cms-site-readiness.web.cern.ch/cms-site-readiness
+CSS=css/
+INPUT=input/
+SSTMAIL="cms-comp-ops-site-support-team@cern.ch"
+cd $BASE
 
 # create directory if not exists
-if [ ! -d $webdir/HTML/ ]; then
-    mkdir -p $webdir/HTML/
+if [ ! -d $WEBDIR/HTML/ ]; then
+    mkdir -p $WEBDIR/HTML/
 fi
 
 # copy css files
-cp $css/* $webdir/HTML/
+cp $CSS/* $WEBDIR/HTML/
 
 # Active links
 echo "*** EnabledLinksFromPhEDExDataSrv.py ***"
-python EnabledLinksFromPhEDExDataSrv.py -p $webdir -u $link
+python EnabledLinksFromPhEDExDataSrv.py -p $WEBDIR -u $LINK
 
 # Site Readiness python
 echo "*** SiteReadiness.py ***"
-./SiteReadiness.py -p $webdir -u $link -i $input
+./SiteReadiness.py -p $WEBDIR -u $LINK -i $INPUT
 # $link: address to use inside files for output links
 
 # Usable sites for analysis
 echo "*** UsableSites.py ***"
-python UsableSites.py -p $webdir -u $link
-
-# copy all output files to web location
-cp -a $webdir/. $webofficial/
-cp -a $webdir/. $webofficial2/
-echo "*** All copies completed ***"
+python UsableSites.py -p $WEBDIR -u $LINK

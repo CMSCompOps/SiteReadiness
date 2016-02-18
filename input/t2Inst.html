@@ -13,25 +13,25 @@
 </tr>
 <tr height="15">
 <td width="425" colspan="2"><div id="legendexp">"Site Readiness Status" as defined in <a href="https://twiki.cern.ch/twiki/bin/view/CMSPublic/WaitingRoomMorgueAndSiteReadiness">Site-Readiness Twiki (click me)</a>:</div></td>
-<td width="425" colspan="2"><div id="legendexp">"Daily Metric" as boolean AND of all invidual metrics:</div></td>
+<td width="425" colspan="2"><div id="legendexp">Life Staus: is the site functional, in the waiting room or morgue?:</div></td>
 </tr>
 <tr height="15">
-<td width="15" bgcolor="green"><div id="legflag">R</div></td>
-<td width="425"><div id="legend"> = READY </div></td>
 <td width="15" bgcolor="green"><div id="legflag">O</div></td>
-<td width="425"><div id="legend"> = OK (All individual metrics above Site Commissioning Thresholds; "n/a" ignored)</div></td>
+<td width="425"><div id="legend"> = The site is OK for the day </div></td>
+<td width="15" bgcolor="green"><div id="legflag">O</div></td>
+<td width="425"><div id="legend"> = OK</div></td>
 </tr>
 <tr height="15">
 <td width="15" bgcolor="yellow"><div id="legflag">W</div></td>
 <td width="425"><div id="legend"> = WARNING </div></td>
+<td width="15" bgcolor="red"><div id="legflag">WR</div></td>
+<td width="425"><div id="legend"> = The site is in the Waiting Room</div></td>
+</tr>
+<tr height="15">
 <td width="15" bgcolor="red"><div id="legflag">E</div></td>
-<td width="425"><div id="legend"> = ERROR (Some individual metrics below Site Commissioning Thresholds)</div></td>
-</tr>
-<tr height="15">
-<td width="15" bgcolor="red"><div id="legflag">NR</div></td>
-<td width="425"><div id="legend"> = NOT-READY </div></td>
-<td width="15" bgcolor="brown"><div id="legflag">SD</div></td>
-<td width="425"><div id="legend"> = SCHEDULED-DOWNTIME</div></td>
+<td width="425"><div id="legend"> = The site has one or more metrics bellow the threshold. </div></td>
+<td width="15" bgcolor="brown"><div id="legflag">M</div></td>
+<td width="425"><div id="legend"> = The site is in the Morgue</div></td>
 </tr>
 <tr height="15">
 <td width="15" bgcolor="brown"><div id="legflag">SD</div></td>
@@ -40,38 +40,27 @@
 <tr height="10">
 </tr>
 <tr height="15">
-<td width="425" colspan="6"><div id="legendexp2">- INDIVIDUAL METRICS -</div></td>
 </tr>
-<tr height="10">
-</tr>
-<tr height="15">
 <td width="425" colspan="2"><div id="legendexp">"Maintenance": Sites scheduled downtimes</div></td>
 <td width="425" colspan="2"><div id="legendexp">"HammerCloud":</div></td>
-<td width="425" colspan="2"><div id="legendexp">"Waiting Room":</div></td>
 </tr>
 <tr height="15">
 <td width="15" bgcolor="green"><div id="legflag">Up</div></td>
 <td width="425"><div id="legend"> = Site is not declaring Scheduled-downtime </div></td>
 <td width="15" bgcolor="green"><div id="legflag"></div></td>
 <td width="425"><div id="legend"> = HC success rate is &ge; 80%</div></td>
-<td width="15" bgcolor="green"><div id="legflag"></div></td>
-<td width="425"><div id="legend"> = Site is out of the waiting room</div></td>
 </tr>
 <tr height="15">
 <td width="15" bgcolor="brown"><div id="legflag">SD</div></td>
 <td width="425"><div id="legend"> = full-site in SD OR all CMS SE(s) in SD OR all CMS CE(s) in SD</div></td>
 <td width="15" bgcolor="red"><div id="legflag"></div></td>
 <td width="425"><div id="legend"> = HC success rate is &lt; 80%</div></td>
-<td width="15" bgcolor="red"><div id="legflag"></div></td>
-<td width="425"><div id="legend"> = Site is in the waiting room</div></td>
 </tr>
 <tr height="15">
 <td width="15" bgcolor="yellow"><div id="legflag">~</div></td>
 <td width="425"><div id="legend"> = Some SE or CE services (not all) Downtime</div></td>
 <td width="15" bgcolor="orange"><div id="legflag">-</div></td>
 <td width="425"><div id="legend"> = Jobs submitted but not finished</div></td>
-<td width="15" bgcolor="yellow"><div id="legflag">W</div></td>
-<td width="425"><div id="legend"> = WARNING state (NOT 'in the waiting room!')</div></td>
 </tr>
 <tr height="15">
 <td width="15" bgcolor="silver"><div id="legflag">UD</div></td>
