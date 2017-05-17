@@ -47,6 +47,10 @@ fi
 # copy css files
 cp $CSS/* $WEBDIR/HTML/
 
+# delete SR reports older than 1 year
+echo "Deleting Site Readiness reports older than 1 year"
+find $WEBDIR/HTML/SiteReadinessReport*  -mtime +365 -exec rm {} +
+
 # Active links
 echo "*** EnabledLinksFromPhEDExDataSrv.py ***"
 python EnabledLinksFromPhEDExDataSrv.py -p $WEBDIR -u $LINK
