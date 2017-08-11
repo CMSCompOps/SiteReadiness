@@ -16,7 +16,7 @@ parser.add_option("-c", "--css",     metavar="PATH",    default=".",   help="css
 
 if len(sys.argv) != 5:
 	parser.error("incorrect number of arguments. Check needed arguments with --help")
-				
+
 def getTierNumber(name):
 	l=re.match("^T(\d+)",name);
 	if not l:
@@ -46,6 +46,9 @@ def Buff2CMS2(unicode_buffer):
 	if i>0:
 		name=buffer[0:i]
 	i=string.find(buffer,"_MSS")
+	if i>0:
+		name=buffer[0:i]
+	i=string.find(buffer,"_ECHO")
 	if i>0:
 		name=buffer[0:i]
 	i=string.find(buffer,"_Export")
@@ -85,7 +88,7 @@ if options.url.find("pic.es") > 0:
 	linkmetrics = options.url + "/CommLinksReports/CommissionedLinks_Sites_" + timestamphtml +'.html'
 elif options.url.find("cern.ch") > 0:
 	linkmetrics = options.url + "/CommLinksReports/HTML/CommissionedLinks_Sites_" + timestamphtml +'.html'
-	
+
 if not os.path.exists(options.path_out):
 	os.makedirs(options.path_out)
 if not os.path.exists(pathout):
@@ -153,7 +156,7 @@ for url in xpath.Evaluate('/phedex/link', t):
 	if (value != "deactivated" ):
 		if not sites.has_key(targetName):
 			sites[targetName]={'upT0':[], 'downT0':[],'upT1':[], 'downT1':[], 'upT2':[], 'downT2':[]}
-			
+
 		uplink='upT%s' % targetTier
 		downlink='downT%s' % sourceTier
 		sites[sourceName][uplink].append(targetName)
@@ -165,14 +168,14 @@ for url in xpath.Evaluate('/phedex/link', t):
 			sites[sourceName2]={'upT0':[], 'downT0':[],'upT1':[], 'downT1':[], 'upT2':[], 'downT2':[]}
 		if (value != "deactivated" ):
 			sites[sourceName2][uplink].append(targetName) # T1_XX_YYY adds _Buffer and _Disk links
-		
+
 	if targetTier=="1" :
 		targetName2=Buff2CMS2(target) # if site has _Buffer or _Disk also creates site name T1_XX_YYY
 		if (value != "deactivated" ):
 			if not sites.has_key(targetName2):
 				sites[targetName2]={'upT0':[], 'downT0':[],'upT1':[], 'downT1':[], 'upT2':[], 'downT2':[]}
 			sites[targetName2][downlink].append(sourceName) # T1_XX_YYY adds _Buffer or _Disk links
-		
+
 # Build txt feed to SSB
 
 keys=sites.keys()
@@ -190,28 +193,28 @@ for i in range(0,len(keys)):
 	fromT1=len(sites[site]["downT1"])
 	toT2=len(sites[site]["upT2"])
 	fromT2=len(sites[site]["downT2"])
-	
+
 	if isT1:
 		siteStatus1[site]=fromT0
 		siteStatus2[site]=toT2
-		ss3="%i(d)-%i(u)" % (fromT1,toT1) 
+		ss3="%i(d)-%i(u)" % (fromT1,toT1)
 		siteStatus3[site]=ss3
 		siteStatus4[site]="n/a"
 		siteStatus5[site]="n/a"
-		
+
 		site2=Buff2CMS2(site) # if name has _Buffer or _Disk --> create site name T1_XX_YYY
-			
+
 		siteColor1[site]="green"
 		siteColor2[site]="green"
 		siteColor3[site]="green"
 		siteColor1[site2]="green"
 		siteColor2[site2]="green"
 		siteColor3[site2]="green"
-			
+
 		if fromT0<T1downlinkT0:
 			siteColor1[site]="red"
 			siteColor1[site2]="red" # if either Buffer or Disk are red, site should be red
-			
+
 		if toT2<T1uplinksT2s:
 			siteColor2[site]="red"
 			siteColor2[site2]="red" # if either Buffer or Disk are red, site should be red
@@ -219,7 +222,7 @@ for i in range(0,len(keys)):
 		if toT1<T1downlinksuplinksT1s or fromT1<T1downlinksuplinksT1s:
 			siteColor3[site]="red"
 			siteColor3[site2]="red"	# if either Buffer or Disk are red, site should be red
-		
+
 	if isT2:
 
 		siteStatus1[site]="n/a"
@@ -296,7 +299,7 @@ f=file(metricPage2,'w')
 f.write('# Site Status derived from DDT Commissioned Links\n')
 mesT1_2="T1 needs >= %s DDT commissioned uplinks to T2 sites" % T1uplinksT2s
 mesT1_2_2="T1::uplinksT2s"
-mesT2_2_2="T2::downlinkT1s" 
+mesT2_2_2="T2::downlinkT1s"
 mes="# - Status of %s (Requirement: %s)\n" % (mesT1_2_2,mesT1_2)
 f.write('#\n')
 f.write(mes)
@@ -357,7 +360,7 @@ f.close()
 f=file(metricPage5,'w')
 f.write('# Site Status derived from DDT Commissioned Links\n')
 mesT2_2="T2 needs >= %s commissioned downlinks from T1 sites" % T2downlinkT1s
-#mesT2_2_2="T2::downlinkT1s" 
+#mesT2_2_2="T2::downlinkT1s"
 mes="# - Status of %s (Requirement: %s)\n" % (mesT2_2_2,mesT2_2)
 f.write('#\n')
 f.write(mes)
@@ -399,8 +402,8 @@ keyst1.sort()
 
 keyst2=availableT2.keys()
 keyst2.sort()
-	
-fileHandle = open ( filehtml , 'w' )    
+
+fileHandle = open ( filehtml , 'w' )
 
 fileHandle.write("<html><head><link type=\"text/css\" rel=\"stylesheet\" href=\""+options.css+"/style-css-links.css\"/></head>\n")
 fileHandle.write("<body><center>\n")
@@ -422,15 +425,15 @@ fileHandle.write("<br><div id=\"site\">" + reptime + "</div>\n")
 
 fileHandle.write("<br>\n")
 fileHandle.write("<table border=\"0\" cellspacing=\"0\" class=leg>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 mes="Site status for %s (Requirement: %s).\n" % (mesT1_1_2,mesT1_1)
 fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">" + mes + "</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=66FF44></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Site satisfies the requirement.</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=FF6600></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Site failing the requirement.</div></td>\n")
 fileHandle.write("</tr>\n")
@@ -439,14 +442,14 @@ fileHandle.write("<p>\n")
 
 fileHandle.write("<p>\n")
 fileHandle.write("<table border=\"0\" cellspacing=\"0\" class=leg>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">Status on Data Transfer Links.</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=green></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Link is DDT-commissioned and enabled in Production PhEDEx instance.</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=red></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Link is not DDT-commissioned and is disabled in Production PhEDEx instance.</div></td>\n")
 fileHandle.write("</tr>\n")
@@ -458,11 +461,11 @@ fileHandle.write("<p>\n")
 
 for j in range(0,3):
 
-	fileHandle.write("<tr height=15>\n") 
+	fileHandle.write("<tr height=15>\n")
 	if j==0 or j==1:
 		fileHandle.write("<td width=" + dw2 + "><div id=\"site\"></div></td>\n")
 	if j==2:
-		fileHandle.write("<td width=" + dw2 + "><div id=\"site\"> T0_CH_CERN to:</div></td>\n")	
+		fileHandle.write("<td width=" + dw2 + "><div id=\"site\"> T0_CH_CERN to:</div></td>\n")
 	for i in range(0,len(keyst1)):
 		site=keyst1[i]
 		if site[1]!="1": continue
@@ -478,9 +481,9 @@ for j in range(0,3):
 			fileHandle.write("<td width=" + dw + " bgcolor=" + color + "><div id=\"site\">" + site + "</div></td>\n")
 		if j==0:
 			mes="%i link enabled" % siteStatus1[site]
-			fileHandle.write("<td width=" + dw + "><div id=enabled>" + mes + "</div></td>\n")			
+			fileHandle.write("<td width=" + dw + "><div id=enabled>" + mes + "</div></td>\n")
 		if j==2:
-			fileHandle.write("<td width=" + dw + " bgcolor=" + siteColor1[site] + "></td>\n")			
+			fileHandle.write("<td width=" + dw + " bgcolor=" + siteColor1[site] + "></td>\n")
 	fileHandle.write("</tr>\n")
 
 fileHandle.write("</table>\n")
@@ -503,15 +506,15 @@ lw2="800"
 
 fileHandle.write("<br>\n")
 fileHandle.write("<table border=\"0\" cellspacing=\"0\" class=leg>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 mes="Site status for %s (Requirement: %s).\n" % (mesT1_3_2,mesT1_3)
 fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">" + mes + "</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=66FF44></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Site satisfies the requirement.</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=FF6600></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Site failing the requirement.</div></td>\n")
 fileHandle.write("</tr>\n")
@@ -520,14 +523,14 @@ fileHandle.write("<p>\n")
 
 fileHandle.write("<p>\n")
 fileHandle.write("<table border=\"0\" cellspacing=\"0\" class=leg>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">Status on Data Transfer Links.</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=green></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Link is DDT-commissioned and enabled in Production PhEDEx instance.</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=red></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Link is not DDT-commissioned and is disabled in Production PhEDEx instance.</div></td>\n")
 fileHandle.write("</tr>\n")
@@ -537,16 +540,16 @@ fileHandle.write("<p>\n")
 fileHandle.write("<table border=\"0\" cellspacing=\"0\" class=stat>\n")
 fileHandle.write("<p>\n")
 
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + dw2 + "><div id=\"site\"></div></td>\n")
 
 for k in range(0,len(availableT1)):
 	t1site2=keyst1[k]
 	mes="%s links enabled" % siteStatus3[t1site2]
-	fileHandle.write("<td width=" + dw + " colspan=2><div id=enabled>" + mes + "</div></td>\n")			
+	fileHandle.write("<td width=" + dw + " colspan=2><div id=enabled>" + mes + "</div></td>\n")
 fileHandle.write("</tr>\n")
 
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + dw2 + "><div id=\"site\"></div></td>\n")
 for k in range(0,len(availableT1)):
 	t1site2=keyst1[k]
@@ -570,11 +573,11 @@ for j in range(0,len(availableT1)):
 	if siteColor3[t1site]=="white":
 		color="white"
 
-	fileHandle.write("<td width=" + dw + " bgcolor=" + color + "><div id=\"site\">" + t1site + "</div></td>\n")	
+	fileHandle.write("<td width=" + dw + " bgcolor=" + color + "><div id=\"site\">" + t1site + "</div></td>\n")
 
 	for k in range(0,len(availableT1)):
 		t1site2=keyst1[k]
-	
+
         	if sites[t1site]["upT1"].count(t1site2) != 0:
 			color="green"
 		else:
@@ -596,7 +599,7 @@ for j in range(0,len(availableT1)):
 			fileHandle.write("<td width=" + dw3 + " bgcolor=" + color + "><div id=comment></div></td>\n")
 		else:
 			fileHandle.write("<td width=" + dw3 + " bgcolor=" + color + "><div id=comment>from:</div></td>\n")
-	
+
 	fileHandle.write("</tr>\n")
 
 fileHandle.write("</table>\n")
@@ -618,15 +621,15 @@ lw2="550"
 
 fileHandle.write("<br>\n")
 fileHandle.write("<table border=\"0\" cellspacing=\"0\" class=leg>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 mes="Site status for %s (Requirement: %s).\n" % (mesT2_1_2,mesT2_1)
 fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">" + mes + "</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=66FF44></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Site satisfies the requirement.</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=FF6600></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Site failing the requirement.</div></td>\n")
 fileHandle.write("</tr>\n")
@@ -635,14 +638,14 @@ fileHandle.write("<p>\n")
 
 fileHandle.write("<p>\n")
 fileHandle.write("<table border=\"0\" cellspacing=\"0\" class=leg>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">Status on Data Transfer Links.</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=green></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Link is DDT-commissioned and enabled in Production PhEDEx instance.</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=red></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Link is not DDT-commissioned and is disabled in Production PhEDEx instance.</div></td>\n")
 fileHandle.write("</tr>\n")
@@ -652,21 +655,21 @@ fileHandle.write("<p>\n")
 fileHandle.write("<table border=\"0\" cellspacing=\"0\" class=stat>\n")
 fileHandle.write("<p>\n")
 
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + dw2 + "><div id=\"site\"></div></td>\n")
 fileHandle.write("<td width=" + dw2 + "><div id=\"site\"></div></td>\n")
 for k in range(0,len(availableT1)):
 	t1site=keyst1[k]
 	fileHandle.write("<td width=" + dw + "><div id=\"site\">" + t1site + "</div></td>\n")
 fileHandle.write("</tr>\n")
-	
+
 for j in range(0,len(availableT2)):
 
 	t2site=keyst2[j]
-	fileHandle.write("<tr height=15>\n") 
+	fileHandle.write("<tr height=15>\n")
 
 	mes="%s links enabled" % siteStatus4[t2site]
-	fileHandle.write("<td width=" + dw + "><div id=enabled>" + mes + "</div></td>\n")			
+	fileHandle.write("<td width=" + dw + "><div id=enabled>" + mes + "</div></td>\n")
 
 	if siteColor4[t2site]=="green":
 		color="66FF44"
@@ -675,7 +678,7 @@ for j in range(0,len(availableT2)):
 	if siteColor4[t2site]=="white":
 		color="white"
 
-	fileHandle.write("<td width=" + dw2 + " bgcolor=" + color +"><div id=\"site\">" + t2site + " to:</div></td>\n")	
+	fileHandle.write("<td width=" + dw2 + " bgcolor=" + color +"><div id=\"site\">" + t2site + " to:</div></td>\n")
 
 	for k in range(0,len(availableT1)):
 		t1site=keyst1[k]
@@ -683,7 +686,7 @@ for j in range(0,len(availableT2)):
 			color="green"
 		else:
 			color="red"
-		fileHandle.write("<td width=" + dw + " bgcolor=" + color + "></td>\n")			
+		fileHandle.write("<td width=" + dw + " bgcolor=" + color + "></td>\n")
 	fileHandle.write("</tr>\n")
 
 fileHandle.write("</table>\n")
@@ -703,19 +706,19 @@ fileHandle.write("<br><div id=\"site\">" + reptime + "</div>\n")
 
 fileHandle.write("<br>\n")
 fileHandle.write("<table border=\"0\" cellspacing=\"0\" class=leg>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 mes="Site status for %s (Requirement: %s).\n" % (mesT2_2_2,mesT2_2)
 fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">" + mes + "</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 mes="Site status for %s (Requirement: %s).\n" % (mesT1_2_2,mesT1_2)
 fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">" + mes + "</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=66FF44></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Site satisfies the requirement.</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=FF6600></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Site failing the requirement.</div></td>\n")
 fileHandle.write("</tr>\n")
@@ -724,14 +727,14 @@ fileHandle.write("<p>\n")
 
 fileHandle.write("<p>\n")
 fileHandle.write("<table border=\"0\" cellspacing=\"0\" class=leg>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw2 + " colspan=2><div id=\"legendexp\">Status on Data Transfer Links.</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=green></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Link is DDT-commissioned and enabled in Production PhEDEx instance.</div></td>\n")
 fileHandle.write("</tr>\n")
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + lw1 + " bgcolor=red></td>\n")
 fileHandle.write("<td width=" + lw2 + "><div id=\"legend\"> = Link is not DDT-commissioned and is disabled in Production PhEDEx instance.</div></td>\n")
 fileHandle.write("</tr>\n")
@@ -742,16 +745,16 @@ fileHandle.write("<table border=\"0\" cellspacing=\"0\" class=stat>\n")
 fileHandle.write("<p>\n")
 
 
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + dw2 + "><div id=\"site\"></div></td>\n")
 fileHandle.write("<td width=" + dw2 + "><div id=\"site2\">(T1::uplinksT2s)</div></td>\n")
 for k in range(0,len(availableT1)):
 	t1site=keyst1[k]
 	mes="%i links enabled" % siteStatus2[t1site]
-	fileHandle.write("<td width=" + dw + "><div id=enabled>" + mes + "</div></td>\n")			
+	fileHandle.write("<td width=" + dw + "><div id=enabled>" + mes + "</div></td>\n")
 fileHandle.write("</tr>\n")
 
-fileHandle.write("<tr height=15>\n") 
+fileHandle.write("<tr height=15>\n")
 fileHandle.write("<td width=" + dw2 + "><div id=\"site\">(T2::downlinkT1s)</div></td>\n")
 fileHandle.write("<td width=" + dw2 + "><div id=\"site\"></div></td>\n")
 for k in range(0,len(availableT1)):
@@ -765,21 +768,21 @@ for k in range(0,len(availableT1)):
 	fileHandle.write("<td width=" + dw + " bgcolor=" + color + "><div id=\"site\">" + t1site + "</div></td>\n")
 fileHandle.write("</tr>\n")
 
-#fileHandle.write("<tr height=15>\n") 
+#fileHandle.write("<tr height=15>\n")
 #fileHandle.write("<td width=" + dw2 + "><div id=\"site\"></div></td>\n")
 #fileHandle.write("<td width=" + dw2 + "><div id=\"site\"></div></td>\n")
 #for k in range(0,len(availableT1)):
 #	t1site=keyst1[k]
 #	fileHandle.write("<td width=" + dw + "><div id=\"site\">" + t1site + "</div></td>\n")
 #fileHandle.write("</tr>\n")
-	
+
 for j in range(0,len(availableT2)):
 
 	t2site=keyst2[j]
-	fileHandle.write("<tr height=15>\n") 
+	fileHandle.write("<tr height=15>\n")
 
 	mes="%s links enabled" % siteStatus5[t2site]
-	fileHandle.write("<td width=" + dw + "><div id=enabled>" + mes + "</div></td>\n")			
+	fileHandle.write("<td width=" + dw + "><div id=enabled>" + mes + "</div></td>\n")
 
 	if siteColor5[t2site]=="green":
 		color="66FF44"
@@ -788,7 +791,7 @@ for j in range(0,len(availableT2)):
 	if siteColor5[t2site]=="white":
 		color="white"
 
-	fileHandle.write("<td width=" + dw2 + " bgcolor=" + color +"><div id=\"site\">" + t2site + " from:</div></td>\n")	
+	fileHandle.write("<td width=" + dw2 + " bgcolor=" + color +"><div id=\"site\">" + t2site + " from:</div></td>\n")
 
 	for k in range(0,len(availableT1)):
 		t1site=keyst1[k]
@@ -796,7 +799,7 @@ for j in range(0,len(availableT2)):
 			color="green"
 		else:
 			color="red"
-		fileHandle.write("<td width=" + dw + " bgcolor=" + color + "></td>\n")			
+		fileHandle.write("<td width=" + dw + " bgcolor=" + color + "></td>\n")
 	fileHandle.write("</tr>\n")
 
 fileHandle.write("</table>\n")
@@ -808,4 +811,3 @@ fileHandle.close()
 os.chdir(pathoutHTML)
 if os.path.isfile(slinkhtml): os.remove(slinkhtml)
 os.symlink(os.path.split(filehtml)[1],slinkhtml)
-

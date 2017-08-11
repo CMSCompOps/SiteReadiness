@@ -66,7 +66,7 @@ class OutputWriter:
                line = line.strip()
                if len(line) > 0 and line[0] != '#': self.weekendSites.append(line)
         print "weekend sites", self.weekendSites
- 
+
     #----------------------------------------------------------------------------------------
     # don't write any output for this site?
     def SkipSiteOutput(self, sitename):
@@ -75,8 +75,9 @@ class OutputWriter:
         if sitename.find("_Buffer") >= 0 : return 1
         if sitename.find("_Disk") >= 0 : return 1
         if sitename.find("T3_") == 0 : return 1
+        if sitename.find("T1_UK_RAL_ECHO") == 0 : return 1
         if sitename in self.ExcludedSites: return 1
-    
+
         # don't write info for sites that are 'n/a' for the entire time period
         dayVals = self.matrices.readiValues[sitename].keys()
         dayVals.sort()
@@ -87,35 +88,35 @@ class OutputWriter:
                 k += 1
         if j==k:
             return 1
-        
+
         return 0
-    
+
     #----------------------------------------------------------------------------------------
     # make file for SSB input
     def ProduceSiteReadinessSSBFile(self):
         print "\nProducing Site Readiness SSB input file\n"
         prog = ProgressBar(0, 100, 77)
         fileHandle = open(self.fileSSB,'w')
-    
+
         sitesit = self.matrices.readiValues.keys()
         sitesit.sort()
         for sitename in sitesit:
             prog.increment(100./len(sitesit))
-    
+
             if self.SkipSiteOutput(sitename): continue
-    
+
             status = self.matrices.readiValues[sitename][self.tinfo.yesterdaystamp]
             colorst = self.SRMatrixColors[status]
-    
+
             linkSSB = self.options.url + "/SiteReadiness/HTML/SiteReadinessReport_" + self.tinfo.timestamphtml + '.html'
             tofile = self.tinfo.todaystampfileSSB + '\t' + sitename + '\t' + status + '\t' + colorst + '\t' + linkSSB + "#" + sitename + "\n"
             fileHandle.write(tofile)
-            
+
         fileHandle.close()
         prog.finish()
 
     #----------------------------------------------------------------------------------------
-    # write SR info from last 15 days to html file    
+    # write SR info from last 15 days to html file
     def ProduceSiteReadinessHTMLViews(self):
         print "\nProducing Site Readiness HTML view\n"
         colspans1 = str(self.cinfo.daysToShow+1)
@@ -124,92 +125,92 @@ class OutputWriter:
         colspans3 = str(self.cinfo.daysSC)
         colspans4 = str(self.cinfo.daysSC)
         colspans5 = str(self.cinfo.daysToShow-self.cinfo.daysSC)
-    
+
         dw = 45
         mw = 325
-    
+
         tablew = str((self.cinfo.daysToShow)*dw+mw)
         dayw = str(dw)
         metricw = str(mw)
         daysw = str((self.cinfo.daysToShow)*dw)
         scdaysw1 = str((self.cinfo.daysSC)*dw)
         scdaysw = str((self.cinfo.daysSC)*dw)
-    
+
         filehtml = self.htmlOutDir + '/SiteReadinessReport_' + self.tinfo.timestamphtml +'.html'
-        fileHandle = open ( filehtml , 'w' )    
-    
+        fileHandle = open ( filehtml , 'w' )
+
         fileHandle.write("<html><head><title>CMS Site Readiness</title><link type=\"text/css\" rel=\"stylesheet\" href=\""+self.options.css+"/style-css-reports.css\"/></head>\n")
         fileHandle.write("<body><center>\n")
         fileHandle.write('<h1 style="line-height:200%">Site Readiness Report</h1>')
-    
+
         sitesit = self.matrices.readiValues.keys()
         sitesit.sort()
-    
+
         prog = ProgressBar(0, 100, 77)
         for sitename in sitesit:
             prog.increment(100./len(sitesit))
-            if not self.SkipSiteOutput(sitename): 
+            if not self.SkipSiteOutput(sitename):
                 fileHandle.write("<a name=\""+ sitename + "\"></a>\n\n")
                 fileHandle.write("<div id=para-"+ sitename +">\n")
-    
+
                 fileHandle.write("<table border=\"0\" cellspacing=\"0\" class=stat>\n")
-    
+
                 fileHandle.write("<tr height=4><td width=" + metricw + "></td>\n")
                 fileHandle.write("<td width=" + daysw + " colspan=" + colspans1 + " bgcolor=black></td></tr>\n")
-    
+
                 fileHandle.write("<tr>\n")
                 fileHandle.write("<td width=\"" + metricw + "\"></td>\n")
                 fileHandle.write("<td width=\"" + daysw + "\" colspan=" + colspans1 + " bgcolor=darkblue><div id=\"site\">" + sitename + "</div></td>\n")
                 fileHandle.write("</tr>\n")
-    
+
                 fileHandle.write("<tr height=4><td width=" + metricw + "></td>\n")
                 fileHandle.write("<td width=" + daysw + " colspan=" + colspans1 + " bgcolor=black></td></tr>\n")
-            
+
                 fileHandle.write("<tr height=7><td width=" + metricw + "></td>\n")
                 fileHandle.write("<td width=" + daysw + " colspan=" + colspans1 + "></td></tr>\n")
-    
+
                 dates = self.matrices.dailyMetrics[sitename].keys()
                 dates.sort()
-    
+
                 fileHandle.write("<tr height=4><td width=" + metricw + "></td>\n")
                 fileHandle.write("<td width=" + daysw + " colspan=" + colspans1 + " bgcolor=black></td></tr>\n")
-            
+
                 fileHandle.write("<tr><td width=" + metricw + "></td>\n")
                 igdays=0
                 indmetrics = self.cinfo.metorder.keys()
                 indmetrics.sort()
-    
+
                 for metnumber in indmetrics:
-    
+
                     met = self.cinfo.metorder[metnumber] #colName
                     met1 = self.cinfo.printCol[met] #pCol (print permission)
-                    tier = sitename.split("_")[0]   
+                    tier = sitename.split("_")[0]
                     met2 = self.cinfo.criteria[tier]
                     dividMetrics = '"metrics2"'
                     if met == 'LifeStatus' or met == 'SiteReadiness':
-                       dividMetrics = '"daily-metric"' 
-                    #if not self.matrices.columnValues[sitename][dates[0]].has_key(met) or met == 'IsSiteInSiteDB': continue # ignore 
+                       dividMetrics = '"daily-metric"'
+                    #if not self.matrices.columnValues[sitename][dates[0]].has_key(met) or met == 'IsSiteInSiteDB': continue # ignore
                     if not self.matrices.columnValues[sitename][dates[0]].has_key(met) or met1 == '0' : continue # ignore
-                    if met1 == 't' and not met in met2 : continue # ignore    
-                    if sitename.find("T1_CH_CERN") == 0 and met == 'T1linksfromT0': continue # ignore 
-    
+                    if met1 == 't' and not met in met2 : continue # ignore
+                    if sitename.find("T1_CH_CERN") == 0 and met == 'T1linksfromT0': continue # ignore
+
                     if met == 'SAMAvailability':
                         fileHandle.write("<tr><td width=\"" + metricw + "\"><div id=\"metrics-header\"><font color=\"orange\">" + self.cinfo.metlegends[met] + ": </font></div></td>\n")
                     elif met == 'LifeStatus':
                          fileHandle.write("<tr><td width=\"" + metricw + "\"><div id=\"metrics-header\">" + self.cinfo.metlegends[met] + ": </div></td><td     width=\"" + dayw + "\" bgcolor=white>"+"</td>\n")
                     else:
                         fileHandle.write("<tr><td width=\"" + metricw + "\"><div id=\"metrics-header\">" + self.cinfo.metlegends[met] + ": </div></td>\n")
-                        
+
                     igdays=0
                     for datesgm in dates: # write out a line for each constituent metric
                         igdays+=1
                         if (self.cinfo.days - igdays)>self.cinfo.daysToShow-1: continue
-    
+
                         state = self.matrices.columnValues[sitename][datesgm][met]['Status']
                         colorst=self.matrices.columnValues[sitename][datesgm][met]['Color']
                         datesgm1 = datesgm[8:10]
                         c = datetime.datetime(*time.strptime(datesgm,"%Y-%m-%d")[0:5])
-                        
+
                         if not sitename in self.weekendSites and (c.weekday() == 5 or c.weekday() == 6) and sitename.find('T2_') == 0 and met != "LifeStatus": # id. weekends
                             if state != " " :
                                 if self.matrices.columnValues[sitename][datesgm][met].has_key('URL') and self.matrices.columnValues[sitename][datesgm][met]['URL'] != ' ' :
@@ -227,17 +228,17 @@ class OutputWriter:
                                 fileHandle.write("<td width=\"" + dayw + "\" bgcolor=" + colorst + "><div id="+dividMetrics+">" + state + "</div></td>\n")
                     fileHandle.write("</tr>\n")
                     if met == 'SiteReadiness':
-                        fileHandle.write("<tr height=4><td width=" + tablew + " colspan=" + colspans22 + " bgcolor=black></td></tr>\n") 
-                        fileHandle.write("<tr height=2><td width=" + tablew + " colspan=" + colspans22 + " bgcolor=white></td></tr>\n") 
-                    
+                        fileHandle.write("<tr height=4><td width=" + tablew + " colspan=" + colspans22 + " bgcolor=black></td></tr>\n")
+                        fileHandle.write("<tr height=2><td width=" + tablew + " colspan=" + colspans22 + " bgcolor=white></td></tr>\n")
+
                 fileHandle.write("<tr height=4><td width=" + tablew + " colspan=" + colspans22 + " bgcolor=black></td></tr>\n")
                 fileHandle.write("<tr height=4><td width=" + metricw + "></td>\n")
-    
+
                 igdays=0
-                
+
                 for datesgm in dates:
                     igdays+=1
-    
+
                     if (self.cinfo.days - igdays)>self.cinfo.daysToShow-1: continue
                     datesgm1 = datesgm[8:10]
                     c = datetime.datetime(*time.strptime(datesgm,"%Y-%m-%d")[0:5])
@@ -246,15 +247,15 @@ class OutputWriter:
                     else:
                         fileHandle.write("<td width=" + dayw + " bgcolor=lightgrey> <div id=\"date\">" + datesgm1 + "</div></td>\n")
                 fileHandle.write("</tr>\n")
-    
+
                 fileHandle.write("<tr height=4><td width=" + metricw + "></td>\n")
                 fileHandle.write("<td width=" + daysw + " colspan=" + colspans1 + " bgcolor=black></td></tr>\n")
-    
+
                 fileHandle.write("<tr><td width=" + metricw + "></td>\n")
-    
+
                 lastmonth=""
                 igdays=0
-    
+
                 for datesgm in dates:
                     igdays+=1
                     if (self.cinfo.days - igdays)>self.cinfo.daysToShow-1: continue
@@ -266,27 +267,27 @@ class OutputWriter:
                     else:
                         fileHandle.write("<td width=" + dayw + "></td>\n")
                 fileHandle.write("</tr>\n")
-            
+
                 fileHandle.write("<tr><td width=" + metricw + "></td>\n")
                 fileHandle.write("<td width=" + scdaysw1 + " colspan=" + colspans3 + "></td>\n")
-            
+
                 fileHandle.write("</table>\n")
-    
+
                 # report time
-                
+
                 fileHandle.write("<div id=\"leg1\">" + self.reptime + "</div>\n")
                 fileHandle.write("</div>\n")
-    
+
                 # print instructions
                 if sitename.find('T1_') == 0:
                     fileHandle.write(self.t1Inst)
                 elif sitename.find('T2_') == 0:
                     fileHandle.write(self.t2Inst)
-    
+
                 fileHandle.write("<p>\n")
-    
+
                 fileHandle.write("<p><br>\n")
-    
+
         fileHandle.write("</center></html></body>")
         fileHandle.close()
         prog.finish()
@@ -302,27 +303,27 @@ class OutputWriter:
             prog.increment(100./3.)
             for sitename in sitesit:
                 if self.SkipSiteOutput(sitename): continue
-                
+
                 countR = 0;  countW = 0;  countNR = 0;  countSD = 0;  countNA = 0
                 infostats2 = {}
                 if not self.matrices.stats.has_key(sitename):
-                    self.matrices.stats[sitename]={}        
-    
+                    self.matrices.stats[sitename]={}
+
                 for i in range(0,dayspan):
                     deltaT = datetime.timedelta(i)
                     datestamp = self.tinfo.yesterday - deltaT
-    
+
                     state = self.matrices.readiValues[sitename][datestamp.strftime("%Y-%m-%d")]
-                    
+
                     if state == "R":  countR  += 1
                     if state == "W":  countW  += 1
                     if state == "NR": countNR += 1
                     if state == "SD": countSD += 1
                     if state.find("n/a") == 0: countNA += 1
-                    
+
                 if not self.matrices.stats[sitename].has_key(dayspan):
-                    self.matrices.stats[sitename][dayspan]={}   
-    
+                    self.matrices.stats[sitename][dayspan]={}
+
                 infostats2['R_perc']= (int)(round(100.*countR/dayspan))
                 infostats2['W_perc']= (int)(round(100.*countW/dayspan))
                 infostats2['R+W_perc']= (int)(round(100.*(countR+countW)/dayspan))
@@ -334,7 +335,7 @@ class OutputWriter:
                 infostats2['NR']= countNR
                 infostats2['SD']= countSD
                 infostats2['days']=dayspan
-    
+
                 if (dayspan-countSD-countNA)!=0:
                     infostats2['Rcorr_perc']= (int)(round(100.*countR/(dayspan-countSD-countNA)))
                     infostats2['Wcorr_perc']= (int)(round(100.*countW/(dayspan-countSD-countNA)))
@@ -345,21 +346,21 @@ class OutputWriter:
                     infostats2['Wcorr_perc']= 0
                     infostats2['R+Wcorr_perc']= 0
                     infostats2['NRcorr_perc']= 100
-                
+
                 self.matrices.stats[sitename][dayspan]=infostats2
-    
+
         prog.finish()
 
     #----------------------------------------------------------------------------------------
-    # 
+    #
     def ProduceSiteReadinessSSBFiles(self):
         print "\nProducing Site Readiness SSB files to commission view\n"
         prog = ProgressBar(0, 100, 77)
         for dayspan in 30, 15, 7:
             prog.increment(100./3.)
-            fileSSBRanking = self.ssbOutDir + '/SiteReadinessRanking_SSBfeed_last' + str(dayspan) + 'days.txt' 
+            fileSSBRanking = self.ssbOutDir + '/SiteReadinessRanking_SSBfeed_last' + str(dayspan) + 'days.txt'
             fileHandle = open ( fileSSBRanking , 'w' )
-    
+
             sitesit = self.matrices.readiValues.keys()
             sitesit.sort()
             for sitename in sitesit:
@@ -374,7 +375,7 @@ class OutputWriter:
                     filenameSSB = self.options.url + "/SiteReadiness/PLOTS/" + sitename.split("_")[0] + "_" + pl + "_last" + str(dayspan) + "days_" + self.tinfo.timestamphtml + ".png"
                     tofile = self.tinfo.todaystampfileSSB + '\t' + sitename + '\t' + str(self.matrices.stats[sitename][dayspan][pl]) + '\t' + color + '\t' + filenameSSB + "\n"
                     fileHandle.write(tofile)
-                            
+
         fileHandle.close()
         prog.finish()
 
@@ -391,18 +392,18 @@ class OutputWriter:
                 for i in "T1","T2":
                     dataR = {}
                     filename = self.plotOutDir + "/" + i + "_" + pl + "_last" + str(dayspan) + "days_" + self.tinfo.timestamphtml + ".png"
-    
+
                     for sitename in sitesit:
                         if not sitename.find(i+"_") == 0 : continue
                         if self.SkipSiteOutput(sitename): continue
                         if pl == 'SD_perc' and self.matrices.stats[sitename][dayspan][pl]==0.: continue # Do not show Up sites on SD plots.
                         if sitename == 'T1_CH_CERN': sitename = 'T2_CH_CERN'
                         dataR[sitename+" ("+str(self.matrices.stats[sitename][dayspan]["SD_perc"])+"%)"] = self.matrices.stats[sitename][dayspan][pl]
-                    
+
                     if len(dataR) == 0:
                         os.system("touch %s" % filename)
                         continue
-                    
+
                     norms = normalize(0,100)
                     mapper = cm.ScalarMappable( cmap=cm.RdYlGn, norm=norms )
                     # Hack to make mapper work:
@@ -411,15 +412,15 @@ class OutputWriter:
                     mapper.get_alpha = get_alpha
                     A = linspace(0,100,100)
                     mapper.set_array(A)
-                    
+
                     pos = arange(len(dataR))+.5    # the bar centers on the y axis
                     dataS = dataR.items()
                     dataS.sort(lambda x,y: cmp(x[1],y[1]))
-    
+
                     ytext = []
                     val = []
                     color = []
-                    total=0 
+                    total=0
                     ent=0
                     ent2=0
                     for t in range(0,len(dataS)):
@@ -431,12 +432,12 @@ class OutputWriter:
                         if i == 'T1' and dataS[t][1] > 90 : ent2+=1
                         if i == 'T2' and dataS[t][1] <= 80 : ent+=1
                         if i == 'T2' and dataS[t][1] > 80 : ent2+=1
-    
+
                     if pl == 'R+Wcorr_perc':
                         metadataR = {'title':'%s Readiness Rank last %i days (+SD %%) [%s]' % (i,int(dayspan),self.tinfo.todaystamp), 'fixed-height':False }
                     if pl == 'SD_perc':
                         metadataR = {'title':'Rank for %s Scheduled Downtimes last %i days [%s]' % (i,int(dayspan),self.tinfo.todaystamp), 'fixed-height':True}
-    
+
                     fig = Figure()
                     canvas = FigureCanvas(fig)
                     if i == 'T1':
@@ -464,7 +465,7 @@ class OutputWriter:
                             ax.text(81,2,str(ent2)+"/"+str(total)+" >80%",color='darkgreen',fontsize=6)
                             ax.text(81,1,str(ent)+"/"+str(total)+" $\leq$80%",color='red',fontsize=6)
                     canvas.print_figure(filename)
-    
+
         prog.finish()
 
     def PrintDailyMetricsStats(self):
@@ -477,7 +478,7 @@ class OutputWriter:
             dates = self.matrices.dailyMetrics[sitename].keys()
             dates.sort()
             continue
-    
+
         for i in "T1","T2":
             prog.increment(100./2.)
             for dat in dates:
@@ -486,7 +487,7 @@ class OutputWriter:
                     if sitename.find("T1_CH_CERN") == 0: continue
                     if not sitename.find(i+"_") == 0: continue
                     if self.SkipSiteOutput(sitename): continue
-                    
+
                     state = self.matrices.dailyMetrics[sitename][dat]
                     if state == "O":
                         countO+=1
@@ -496,11 +497,11 @@ class OutputWriter:
                         countna+=1
                     if state == "SD":
                         countSD+=1
-    
+
                 if dat == self.tinfo.todaystamp: continue
                 tofile = "Daily Metric " + i + " " + dat + " " + str(countE) + " " +  str(countO) + " " + str(countna) + " " + str(countSD) + " " + str(countE+countO+countSD+countna) + "\n"
                 fileHandle.write(tofile)
-    
+
         fileHandle.close()
         prog.finish()
 
@@ -514,7 +515,7 @@ class OutputWriter:
             dates = self.matrices.readiValues[sitename].keys()
             dates.sort()
             continue
-    
+
         for i in "T1","T2":
             prog.increment(100./2.)
             for dat in dates:
@@ -523,7 +524,7 @@ class OutputWriter:
                     if sitename.find("T1_CH_CERN") == 0: continue
                     if not sitename.find(i+"_") == 0: continue
                     if self.SkipSiteOutput(sitename): continue
-                    
+
                     state = self.matrices.readiValues[sitename][dat]
                     if state == "R":
                         countR+=1
@@ -535,14 +536,14 @@ class OutputWriter:
                         countna+=1
                     if state == "SD":
                         countSD+=1
-    
+
                 if dat == self.tinfo.todaystamp: continue
                 tofile = "Site Readiness Metric " + i + " " + dat + " " + str(countR) + " " + str(countNR) + " " + str(countna) + " " + str(countW) + " " + str(countSD) + " " + str(countR+countNR+countW+countna+countSD) + "\n"
                 fileHandle.write(tofile)
-    
+
         fileHandle.close()
         prog.finish()
-    
+
     def PrintDailyMetrics(self):
         prog = ProgressBar(0, 100, 77)
         indmetrics = self.cinfo.metorder.keys()
@@ -558,19 +559,19 @@ class OutputWriter:
                 for metnumber in indmetrics:
                     met = self.cinfo.metorder[metnumber] #colName
                     met1 = self.cinfo.printCol[met] #pCol (print permission)
-                                        
+
                     #if not self.matrices.columnValues[sitename][dat].has_key(met) or met == 'IsSiteInSiteDB': continue # ignore
-                    if not self.matrices.columnValues[sitename][dat].has_key(met) or met1 == '0' : continue # ignore 
-                    
+                    if not self.matrices.columnValues[sitename][dat].has_key(met) or met1 == '0' : continue # ignore
+
                     if self.matrices.columnValues[sitename][dat][met].has_key('URL'):
                         url = self.matrices.columnValues[sitename][dat][met]['URL']
                     else:
                         url = "-"
                     print dat, sitename, met, self.matrices.columnValues[sitename][dat][met]['Status'], self.matrices.columnValues[sitename][dat][met]['Color'],url
-    
+
         prog.finish()
-    
-                    
+
+
     def CreateSimbLinks(self):
         os.chdir(self.htmlOutDir)
         slinkhtml= './SiteReadinessReport.html'
@@ -585,7 +586,7 @@ class OutputWriter:
                     slinkhtml = "./" + i + "_" + pl + "_last" + str(dayspan) + "days.png"
                     if os.path.isfile(slinkhtml): os.remove(slinkhtml)
                     os.symlink(os.path.split(filepng)[1],slinkhtml)
-    
+
     # Matrices were renamed for clarity from original code, but we keep the .pck names the same
     # for backward compatibility (note, I don't know if anything actually uses the pickle files, but
     # we're playing it safe here)
@@ -599,12 +600,12 @@ class OutputWriter:
         file1 = open(file, "w")
         pickle.dump(self.matrices.columnValues, file1)
         file1.close()
-    
+
         file = self.asciiOutDir + "/SiteCommMatrixT1T2.pck"
         file1 = open(file, "w")
         pickle.dump(self.matrices.dailyMetrics, file1)
         file1.close()
-    
+
         file = self.asciiOutDir + "/SiteCommGlobalMatrix.pck"
         file1 = open(file, "w")
         pickle.dump(self.matrices.readiValues, file1)
